@@ -502,10 +502,8 @@ class DefaultPoolConfigurator(MemoryPoolConfigurator):
             _should_elide_dsa_index_k,
         )
 
-        if (
-            allocate_all_layers
-            or kvc.server_args.enable_hisparse
-            or not _should_elide_dsa_index_k(is_draft_worker=kvc.is_draft_worker)
+        if allocate_all_layers or not _should_elide_dsa_index_k(
+            is_draft_worker=kvc.is_draft_worker
         ):
             num_indexer_layers = num_layers
         else:
@@ -515,7 +513,8 @@ class DefaultPoolConfigurator(MemoryPoolConfigurator):
             )
 
             _, shard_size = get_glm_dsa_cp_layer_shard_info(kvc)
-            if shard_size > 1:
+            # HiSparse builds HiSparseDSATokenToKVPool, never the LayerSplit pool.
+            if shard_size > 1 and not memory_config.enable_hisparse:
                 # Preserve the existing LayerSplit sizing semantics. GLM-5.3
                 # hybrid-layer support is intentionally limited to the normal
                 # (non-LayerSplit) pool below.

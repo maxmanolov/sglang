@@ -96,6 +96,21 @@ def create_indexer_capturer(
     device: str,
 ) -> Optional[IndexerTopkCapturer]:
 
+    from sglang.srt.state_capturer.indexer_topk_log import (
+        create_indexer_topk_log_capturer,
+    )
+
+    # The log streams decode steps to disk, so it replaces the per-token host
+    # cache rather than running beside it.
+    if (
+        log_capturer := create_indexer_topk_log_capturer(
+            model_config=model_config,
+            max_running_requests=max_running_requests,
+            device=device,
+        )
+    ) is not None:
+        return log_capturer
+
     enable = get_exec().features.enable_return_indexer_topk
     # Producer wiring is CUDA-only (Indexer.forward_cuda + MLA skip_topk
     # path); other backends would create a capturer but never feed it.

@@ -36,6 +36,8 @@ _NUM_STAGING_SLOTS = 4
 class IndexerTopkLogHeader(msgspec.Struct, frozen=True):
     version: int
     topk: int
+    num_model_layers: int
+    # Layers that compute a fresh top-k; the layers between two entries reuse it.
     layer_ids: List[int]
     # False when the fused top-k already mapped positions to KV slot ids.
     ids_are_token_positions: bool
@@ -250,6 +252,7 @@ def create_indexer_topk_log_capturer(
     header = IndexerTopkLogHeader(
         version=1,
         topk=hf_text_config.index_topk,
+        num_model_layers=num_model_layers,
         layer_ids=[
             layer_id
             for layer_id in range(num_model_layers)

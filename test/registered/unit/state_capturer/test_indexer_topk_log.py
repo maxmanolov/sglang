@@ -35,6 +35,7 @@ def _header() -> IndexerTopkLogHeader:
     return IndexerTopkLogHeader(
         version=1,
         topk=_TOPK,
+        num_model_layers=_NUM_MODEL_LAYERS,
         layer_ids=_LAYER_IDS,
         ids_are_token_positions=True,
         model_path="dummy",
